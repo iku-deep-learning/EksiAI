@@ -32,6 +32,10 @@ class EntryGetterSpider(scrapy.Spider):
         # only last 3rd element contains the real entry id
         entry_id = entry_id[len(entry_id)-3]
         
+        entry_date = response.xpath("//a[@class='entry-date permalink']/text()").extract()
+        entry_date = str(entry_date)
+        entry_date = entry_date[2:len(entry_date)-2]
+        
         yield {
             
             "entryId":entry_id,
