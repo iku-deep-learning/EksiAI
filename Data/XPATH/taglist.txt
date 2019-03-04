@@ -1,0 +1,2 @@
+entry = //div[@class='content content-expanded']/text()
+topic = //span[@itemprop='name']/text()
