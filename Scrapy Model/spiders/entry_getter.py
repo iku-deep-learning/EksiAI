@@ -10,6 +10,20 @@ class EntryGetterSpider(scrapy.Spider):
     start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,150)]
     #start_urls = ['http://eksisozluk.com/entry/15']
 
+    def preprocess_text(self,text):
+
+        garbage_text = ["\\","['<div class=\"content\">rn    ",  "rn  </div>']", "class=\"b\"", "<br>"]
+        for garbage in garbage_text:
+            text = text.replace(garbage,"")
+        return text
+
+    def extract_link(self,text):
+
+        link = re.findall(r'<a  href[^<]+?</a>', text)
+        link_names = re.findall(r'">([^<]+?)</a>', text)
+        text = re.sub(r'<a  href([^<]+?)</a>', lambda match: link_names.pop(0), text, count=len(link_names))
+        return text, link
+
     def parse(self, response):
 
         topic = response.xpath("//span[@itemprop='name']/text()").extract()
@@ -19,15 +33,9 @@ class EntryGetterSpider(scrapy.Spider):
 
         entry = response.xpath("//div[@class='content']").extract()
         entry = str(entry)
-        if "class=\"b\"" in entry:
-            entry = entry.replace("class=\"b\"", "")
-        c = '\\'
-        position = [pos for pos, char in enumerate(entry) if char == c]
-        entry_list = list(entry)
-        for index in position:
-            entry_list[index] = 'A'
-        entry = "".join(entry_list)
-        entry = entry[31:len(entry)-15]
+        entry = self.preprocess_text(entry)
+
+        entry, link = self.extract_link(entry)
 
         author = response.xpath("//a[@class='entry-author']/text()").extract()
         author = str(author)
@@ -52,6 +60,7 @@ class EntryGetterSpider(scrapy.Spider):
             "author": author,
             "topic": topic,
             "entry": entry,
+            "link" : link,
             "entryDate": entry_date
 
         }
