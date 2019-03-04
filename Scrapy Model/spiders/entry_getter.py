@@ -15,10 +15,11 @@ class EntryGetterSpider(scrapy.Spider):
         # only first second to last 2nd element contains valid author name
         topic = topic[2:len(topic)-2]
         
-        entry = response.xpath("//div[@class='content']/text()").extract()
+        # if we extract text() only we loose links within the entry
+        entry = response.xpath("//div[@class='content']").extract()
         entry = str(entry)
-        # only first 10th to last 8th element contains valid author name
-        entry = entry[10:len(entry)-8]
+        # only first 31st to last 15th element contains valid author name
+        entry = entry[31:len(entry)-15]
         
         author = response.xpath("//a[@class='entry-author']/text()").extract()
         author = str(author)
