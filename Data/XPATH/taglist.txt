@@ -1,2 +1,5 @@
 entry = //div[@class='content content-expanded']/text()
 topic = //span[@itemprop='name']/text()
+author = //a[@class='entry-author']/text()
+entry_id = //a[@class='entry-date permalink']/@href
+entry_date = //a[@class='entry-date permalink']/text()
