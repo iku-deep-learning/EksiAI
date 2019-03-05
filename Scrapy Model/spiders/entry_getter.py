@@ -11,12 +11,12 @@ class EntryGetterSpider(scrapy.Spider):
 
     #start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,120)]
     # if you want a single entry where 15 is the entry id
-    start_urls = ['http://eksisozluk.com/entry/147']
+    start_urls = ['http://eksisozluk.com/entry/87398436']
 
     login_url = 'http://eksisozluk.com/giris'
 
-    login_user = 'user-email'
-    login_password = 'passs'
+    login_user = 'usermail'
+    login_password = 'pass'
 
     def start_requests(self):
         # let's start by sending a first request to login page
@@ -34,25 +34,28 @@ class EntryGetterSpider(scrapy.Spider):
         for url in self.start_urls:
           yield scrapy.Request(url)
 
-    def preprocess_text(self,text):
+    def preprocess_text(self,text,url_text):
 
         garbage_text = ["\\","['<div class=\"content\">rn    ",  "rn  </div>']", "class=\"b\"", "<br>"]
         for garbage in garbage_text:
             text = text.replace(garbage,"")
 
         link_names = re.findall(r'">([^<]+?)</a>', text)
-
-
         for i, link in enumerate(link_names):
             link_names[i] = "`" + link + "`"
-        print("--------------------------------------------------------------")
-        print(link_names)
 
         text = re.sub(r'<a  href([^<]+?)</a>', lambda match: link_names.pop(0), text, count=len(link_names))
         # Deletes the remaining html data within text
         text = re.sub('<[^>]+>', ' ', text)
         # Deletes urls within the text
         text = re.sub(r'http\S+', '', text)
+
+        # Cleaning also url text like click here
+        text = text.replace(url_text,"")
+
+        # Deleting multiple space and left new lines
+        text = ' '.join(text.split())
+
         return text
 
     def preprocess_fav(self, fav_count):
@@ -74,7 +77,11 @@ class EntryGetterSpider(scrapy.Spider):
 
         entry = response.xpath("//div[@class='content']").extract()
         entry = str(entry)
-        entry = self.preprocess_text(entry)
+
+        # we only get the text of an url like click here
+        url_text = str(response.xpath("string(//a[@class='url']/text())").extract())
+        url_text = url_text[2:-2]
+        entry = self.preprocess_text(entry,url_text)
         # convert html unicode to string
         entry = html.unescape(entry)
 
@@ -94,7 +101,6 @@ class EntryGetterSpider(scrapy.Spider):
         fav_count = self.preprocess_fav(str(fav_count))
         # it's more useful for us as an integer(to train the data)
         fav_count = int(fav_count)
-
 
         entry_date = response.xpath("//a[@class='entry-date permalink']/text()").extract()
         entry_date = str(entry_date)
