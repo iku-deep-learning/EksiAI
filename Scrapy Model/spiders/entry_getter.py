@@ -34,29 +34,56 @@ class EntryGetterSpider(scrapy.Spider):
         for url in self.start_urls:
           yield scrapy.Request(url)
 
-    def preprocess_text(self,text,url_text):
+    def dolar_sign_edit(self,text):
+        positions = [pos for pos, char in enumerate(text) if char == "$"]
+        text = list(text)
 
-        garbage_text = ["\\","['<div class=\"content\">rn    ",  "rn  </div>']", "class=\"b\"", "<br>"]
+        for index in positions:
+            flag = True
+            for ch in text[index - 1:index + 2]: # checks the one before and one after characters
+                if ch.isdigit():
+                    flag = False
+            if flag:
+                text[index] = "ş"
+
+        text = "".join(text)
+        return text
+
+    def remove_garbage_substrings(self,text):
+
+        garbage_text = ["\\", "['<div class=\"content\">rn    ", "rn  </div>']", "class=\"b\"", "<br>"]
         for garbage in garbage_text:
-            text = text.replace(garbage,"")
+            text = text.replace(garbage, "")
+        return text
+
+    def edit_links(self,text):
 
         link_names = re.findall(r'">([^<]+?)</a>', text)
         for i, link in enumerate(link_names):
             link_names[i] = "`" + link + "`"
-
         text = re.sub(r'<a  href([^<]+?)</a>', lambda match: link_names.pop(0), text, count=len(link_names))
-        # Deletes the remaining html data within text
-        text = re.sub('<[^>]+>', ' ', text)
-        # Deletes urls within the text
-        text = re.sub(r'http\S+', '', text)
-
-        # Cleaning also url text like click here
-        text = text.replace(url_text,"")
-
-        # Deleting multiple space and left new lines
-        text = ' '.join(text.split())
 
         return text
+
+    def edit_html_substring(self,text,url_text):
+
+        text = re.sub('<[^>]+>', ' ', text)    # Deletes the remaining html data within text
+        text = re.sub(r'http\S+', '', text)    # Deletes urls within the text
+        text = text.replace(url_text, "")      # Cleaning also url text like click here
+
+        return text
+
+    def preprocess_text(self,text,url_text):
+
+        text = self.remove_garbage_substrings(text) # removing garbace characters
+        text = self.edit_links(text) # editing <a href></a> parts in the string
+        text = self.edit_html_substring(text,url_text)
+        text = ' '.join(text.split())  # Deleting multiple space and left new lines
+        text = self.dolar_sign_edit(text) #Editing $ characters and identifying if it is the dollar sign or not
+
+        return text
+
+
 
     def preprocess_fav(self, fav_count):
 
