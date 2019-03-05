@@ -2,20 +2,21 @@
 import scrapy
 import re
 from loginform import fill_login_form
+import html
 
 
 class EntryGetterSpider(scrapy.Spider):
     name = 'entry_getter'
     allowed_domains = ['eksisozluk.com']
 
-    #start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,1000)]
+    #start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,120)]
     # if you want a single entry where 15 is the entry id
-    start_urls = ['http://eksisozluk.com/entry/15']
+    start_urls = ['http://eksisozluk.com/entry/147']
 
     login_url = 'http://eksisozluk.com/giris'
 
-    login_user = 'sonerabay@ikudeeplearning.com'
-    login_password = 'xxxxxxxxx'
+    login_user = 'user-email'
+    login_password = 'passs'
 
     def start_requests(self):
         # let's start by sending a first request to login page
@@ -74,6 +75,8 @@ class EntryGetterSpider(scrapy.Spider):
         entry = response.xpath("//div[@class='content']").extract()
         entry = str(entry)
         entry = self.preprocess_text(entry)
+        # convert html unicode to string
+        entry = html.unescape(entry)
 
         author = response.xpath("//a[@class='entry-author']/text()").extract()
         author = str(author)
