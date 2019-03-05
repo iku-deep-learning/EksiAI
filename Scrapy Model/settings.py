@@ -20,7 +20,7 @@ NEWSPIDER_MODULE = 'eksisozluk3.spiders'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
-USER_AGENT = "Mediapartners-Google" 
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36'
 FEED_EXPORT_ENCODING = "utf-8"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
