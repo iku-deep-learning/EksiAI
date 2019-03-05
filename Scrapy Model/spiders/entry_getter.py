@@ -8,15 +8,14 @@ class EntryGetterSpider(scrapy.Spider):
     name = 'entry_getter'
     allowed_domains = ['eksisozluk.com']
 
-    start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,1000)]
+    #start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1,1000)]
     # if you want a single entry where 15 is the entry id
-    #start_urls = ['http://eksisozluk.com/entry/147']
+    start_urls = ['http://eksisozluk.com/entry/15']
 
     login_url = 'http://eksisozluk.com/giris'
 
     login_user = 'sonerabay@ikudeeplearning.com'
-    
-    login_password = 'xxxxxxxxxx'
+    login_password = 'xxxxxxxxx'
 
     def start_requests(self):
         # let's start by sending a first request to login page
@@ -36,14 +35,23 @@ class EntryGetterSpider(scrapy.Spider):
 
     def preprocess_text(self,text):
 
+        garbage_text = ["\\","['<div class=\"content\">rn    ",  "rn  </div>']", "class=\"b\"", "<br>"]
+        for garbage in garbage_text:
+            text = text.replace(garbage,"")
+
+        link_names = re.findall(r'">([^<]+?)</a>', text)
+
+
+        for i, link in enumerate(link_names):
+            link_names[i] = "`" + link + "`"
+        print("--------------------------------------------------------------")
+        print(link_names)
+
+        text = re.sub(r'<a  href([^<]+?)</a>', lambda match: link_names.pop(0), text, count=len(link_names))
         # Deletes the remaining html data within text
         text = re.sub('<[^>]+>', ' ', text)
         # Deletes urls within the text
         text = re.sub(r'http\S+', '', text)
-        # Replaces double back slashes
-        text = text.replace("\\", "")
-        # Deletes unnecassary beginings and endings
-        text = text[9:-7]
         return text
 
     def preprocess_fav(self, fav_count):
@@ -63,7 +71,7 @@ class EntryGetterSpider(scrapy.Spider):
         topic = str(topic)
         topic = topic[2:len(topic) - 2]
 
-        entry = response.xpath("string(//div[@class='content'])").extract()
+        entry = response.xpath("//div[@class='content']").extract()
         entry = str(entry)
         entry = self.preprocess_text(entry)
 
