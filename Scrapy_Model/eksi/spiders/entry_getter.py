@@ -15,7 +15,7 @@ class EntryGetterSpider(scrapy.Spider):
 
     login_url = 'http://eksisozluk.com/giris'
 
-    login_user = 'email@email.com'
+    login_user = 'mail@mail'
     login_password = 'pass'
 
     def start_requests(self):
@@ -51,7 +51,9 @@ class EntryGetterSpider(scrapy.Spider):
 
     def remove_garbage_substrings(self,text):
 
-        garbage_text = ["\\", "['<div class=\"content\">rn    ", "rn  </div>']", "class=\"b\"", "<br>"]
+        # we replace space with html new line
+        text = text.replace("<br>", " ")
+        garbage_text = ["\\", "['<div class=\"content\">rn    ", "rn  </div>']", "class=\"b\""]
         for garbage in garbage_text:
             text = text.replace(garbage, "")
         return text
@@ -132,6 +134,7 @@ class EntryGetterSpider(scrapy.Spider):
         entry_date = response.xpath("//a[@class='entry-date permalink']/text()").extract()
         entry_date = str(entry_date)
         entry_date = entry_date[2:len(entry_date) - 2]
+
 
         yield {
 
