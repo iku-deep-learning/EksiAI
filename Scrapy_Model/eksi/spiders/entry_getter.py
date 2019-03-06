@@ -9,13 +9,13 @@ class EntryGetterSpider(scrapy.Spider):
     name = 'entry_getter'
     allowed_domains = ['eksisozluk.com']
 
-    start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(1000000,1500000)]
+    start_urls = ['http://eksisozluk.com/entry/%s' % i for i in range(500000,1000000)]
     #if you want a single entry where 15 is the entry id
     #start_urls = ['http://eksisozluk.com/entry/89']
 
     login_url = 'http://eksisozluk.com/giris'
 
-    login_user = 'aduk46+2@gmail.com'
+    login_user = 'aduk46+1@gmail.com'
     login_password = 'Aa12345678'
 
     def start_requests(self):
