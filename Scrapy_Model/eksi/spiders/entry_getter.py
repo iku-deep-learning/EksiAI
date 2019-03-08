@@ -15,7 +15,7 @@ class EntryGetterSpider(scrapy.Spider):
 
     login_url = 'http://eksisozluk.com/giris'
 
-    login_user = 'aduk46+1@gmail.com'
+    login_user = 'aduk46+2@gmail.com'
     login_password = 'Aa12345678'
 
     def start_requests(self):
