@@ -1,4 +1,4 @@
-Last fetched entry id is: 40.000.000
+Last fetched entry id is: 30.000.000
 
 Change the range in entry_getter.py to fetch diffent data.
 
